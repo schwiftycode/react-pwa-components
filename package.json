@@ -2,7 +2,7 @@
   "name": "react-pwa-components",
   "version": "1.0.1",
   "private": false,
-  "main": "dist/index.js",
+  "main": "index.js",
   "babel": {
     "presets": [
       "@babel/preset-react"
