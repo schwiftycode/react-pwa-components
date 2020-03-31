@@ -1,5 +1,3 @@
-import React from './node_modules/react';
-
 const Easings = {
     linearTween: function (t, b, c, d) {
         return c * t / d + b;

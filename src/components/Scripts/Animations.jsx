@@ -1,5 +1,3 @@
-import React from './node_modules/react';
-
 const Animations = {
     Fade: 'Fade',
     SlideFromLeft: 'SlideFromLeft',
