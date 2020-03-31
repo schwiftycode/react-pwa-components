@@ -1,6 +1,6 @@
 {
   "name": "react-pwa-components",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "private": false,
   "main": "index.js",
   "babel": {
@@ -21,10 +21,10 @@
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "build:npm": "rm -rf dist && mkdir dist && babel src/components -d dist --copy-files && babel package.json -d dist --copy-files",
-    "publish:npm-patch": "npm version patch -f && npm run build:npm && cd dist && npm publish && cd ..",
-    "publish:npm-minor": "npm version minor -f && npm run build:npm && cd dist && npm publish && cd ..",
-    "publish:npm-major": "npm version major -f && npm run build:npm && cd dist && npm publish && cd .."
+    "build-npm": "rm -rf dist && mkdir dist && babel src/components -d dist --copy-files && babel package.json -d dist --copy-files",
+    "publish-npm-patch": "npm version patch -f && npm run build-npm && cd dist && npm publish && cd ..",
+    "publish-npm-minor": "npm version minor -f && npm run build-npm && cd dist && npm publish && cd ..",
+    "publish-npm-major": "npm version major -f && npm run build-npm && cd dist && npm publish && cd .."
   },
   "eslintConfig": {
     "extends": "react-app"
