@@ -1,4 +1,6 @@
 import React, { useState, useRef, useImperativeHandle, forwardRef, useEffect } from 'react';
+import Animations from '../Scripts/Animations';
+import Easings from '../Scripts/Easings';
 
 import './style.css';
 
