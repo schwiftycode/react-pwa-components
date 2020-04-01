@@ -1,6 +1,6 @@
 {
   "name": "react-pwa-components",
-  "version": "1.0.7",
+  "version": "1.0.8",
   "private": false,
   "main": "index.js",
   "babel": {
