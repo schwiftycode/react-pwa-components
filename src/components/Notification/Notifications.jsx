@@ -8,7 +8,27 @@ const Notifications = {
         let notificationContainer = document.createElement('div')
         document.getElementById('App').appendChild(notificationContainer)
         ReactDOM.render(
-            <Notification title={title} message={message} darkMode={options.darkMode} />,
+            <Notification
+                title={title}
+                message={message}
+                darkMode={options.darkMode} />,
+            notificationContainer
+        )
+    },
+
+    showConfirm: (title, message, onConfirm, onDismiss, options) => {
+        let notificationContainer = document.createElement('div')
+        document.getElementById('App').appendChild(notificationContainer)
+        ReactDOM.render(
+            <Notification
+                title={title}
+                message={message}
+                onConfirm={onConfirm}
+                onDismiss={onDismiss}
+                darkMode={options.darkMode}
+                dismissTitle={options.dismissTitle}
+                confirmTitle={options.confirmTitle}
+                isConfirm />,
             notificationContainer
         )
     },

@@ -31,26 +31,59 @@ function App() {
     cursor: 'pointer',
   }
   const switcher = useRef(null);
+
   const screen1 = <div style={{
     ...pageStyle,
     background: 'green',
   }}>
     <h1 style={pageHeaderStyle}>Screen 1</h1>
+
+    {/** Go to Screen 2 Button */}
     <input type='button' style={buttonStyle} value="Go to Screen 2" onClick={_ => {
       switcher.current.navigate('Screen2', Animations.SlideFromRight, 200, Easings.easeInOutQuart);
     }} />
+
+    {/** Show Push Notification Button */}
     <input type='button' style={buttonStyle} value="Show Push Notification" onClick={_ => {
-      Notifications.show('Hello', 'Some message to the user', { darkMode: true })
+      Notifications.show('Test Notification',
+        'This is a test notification showing normal notifications',
+        {
+          darkMode: true
+        }
+      )
     }} />
+
+    {/** Show Confirm Notification Button */}
+    <input type='button' style={buttonStyle} value="Show Confirm Notification" onClick={_ => {
+      Notifications.showConfirm('Test Confirm Notification',
+        'This is a test notification showing how confirm notifications work',
+        _ => {
+          console.log('Confirm Clicked')
+        },
+        _ => {
+          console.log('Dismiss Clicked')
+        },
+        {
+          darkMode: true,
+          confirmTitle: 'Okay',
+          dismissTitle: 'Nope'
+        }
+      )
+    }} />
+
   </div>
+
   const screen2 = <div style={{
     ...pageStyle,
     background: 'blue',
   }}>
     <h1 style={pageHeaderStyle}>Screen 2</h1>
+
+    {/** Go to Screen 1 Button */}
     <input type='button' style={buttonStyle} value="Go to Screen 1" onClick={_ => {
       switcher.current.navigate('Screen1', Animations.SlideFromLeft, 200, Easings.easeInOutQuart);
     }} />
+
   </div>
   return (
     <div className="App" id="App">

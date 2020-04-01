@@ -80,6 +80,7 @@ $borderRadius: 12px;
                 align-items: center;
                 margin-top: -4px;
                 margin-right: -4px;
+                cursor: pointer;
 
                 &:active {
                     opacity: 0.5;
@@ -102,6 +103,7 @@ $borderRadius: 12px;
                     flex: 1;
                     text-align: center;
                     border-radius: 8px;
+                    cursor: pointer;
 
                     &.dismiss-action {
                         background: rgba(0, 0, 0, 0.125);

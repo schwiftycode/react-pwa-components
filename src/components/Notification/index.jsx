@@ -13,7 +13,7 @@ const Notification = forwardRef((props, ref) => {
 
     useEffect(_ => {
         setTimeout(() => {
-            setShowNotification(true);
+            show(true);
         }, 100);
     }, [])
 
@@ -36,10 +36,16 @@ const Notification = forwardRef((props, ref) => {
     }
 
     const _handleDismissPressed = _ => {
+        if (props.onDismiss) {
+            props.onDismiss();
+        }
         hide();
     }
 
     const _handleConfirmPressed = _ => {
+        if (props.onConfirm) {
+            props.onConfirm();
+        }
         hide();
     }
 
@@ -57,19 +63,31 @@ const Notification = forwardRef((props, ref) => {
                     <h1>{props.title}</h1>
                     <hr />
                     <span>{props.message}</span>
-                    <div className="dismiss" onClick={_handleDismissPressed} style={{
-                        width: 36,
-                        height: 36,
-                    }}>
-                        <Icon path={mdiCloseCircle}
-                            title="Dismiss"
-                            size={2}
-                            color={props.darkMode ? "rgba(255,255,255,0.5)" : "rgba(0,0,0,0.75)"} />
-                    </div>
-                    <div className="actions-container">
-                        <div className="action dismiss-action" onClick={_handleDismissPressed}>{props.dismissTitle}</div>
-                        <div className="action confirm-action" onClick={_handleConfirmPressed}>{props.confirmTitle}</div>
-                    </div>
+                    {!props.isConfirm ?
+                        <div className="dismiss" onClick={_handleDismissPressed} style={{
+                            width: 36,
+                            height: 36,
+                        }}>
+                            <Icon path={mdiCloseCircle}
+                                title="Dismiss"
+                                size={2}
+                                color={props.darkMode ? "rgba(255,255,255,0.5)" : "rgba(0,0,0,0.75)"} />
+                        </div>
+                        : null}
+                    {props.isConfirm ?
+                        <div className="actions-container">
+                            <div
+                                className="action dismiss-action"
+                                onClick={_handleDismissPressed}>
+                                {props.dismissTitle}
+                            </div>
+                            <div
+                                className="action confirm-action"
+                                onClick={_handleConfirmPressed}>
+                                {props.confirmTitle}
+                            </div>
+                        </div>
+                        : null}
                 </div>
             </div>
         </div>
@@ -79,10 +97,12 @@ const Notification = forwardRef((props, ref) => {
 Notification.defaultProps = {
     title: "Notification Title",
     message: "Notification Message",
+    darkMode: false,
     dismissTitle: "Dismiss",
     confirmTitle: "Confirm",
-    darkMode: false,
-    isConfirm: true,
+    isConfirm: false,
+    onConfirm: null,
+    onDismiss: null
 }
 
 export default Notification;
