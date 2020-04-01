@@ -16,9 +16,13 @@ function App() {
   const pageHeaderStyle = {
     color: 'white',
     marginTop: 24,
+    marginBottom: 12,
+    fontWeight: 500,
   }
   const buttonStyle = {
     padding: 12,
+    paddingLeft: 18,
+    paddingRight: 18,
     border: 'none',
     background: 'white',
     color: 'black',
