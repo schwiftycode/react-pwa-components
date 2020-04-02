@@ -4,10 +4,7 @@ import Easings from '../Scripts/Easings';
 
 import './style.css';
 
-const ScreenNavigator = forwardRef((props, ref) => {
-    let { initialScreen } = props
-    const [screens, setScreens] = useState({})
-    const [screenStates, setScreenStates] = useState({})
+const ScreenSwitcher = forwardRef((props, ref) => {
     const [currentScreen, setCurrentScreen] = useState(null)
     const [nextScreen, setNextScreen] = useState(null)
     const currentScreenContainer = useRef(null)
@@ -16,50 +13,61 @@ const ScreenNavigator = forwardRef((props, ref) => {
     let anim = null;
     let animationStart = 0
 
+    const [navigationStack, setNavigationStack] = useState([]);
+
     useEffect(_ => {
-        setScreens(props.screens)
         currentScreenContainer.current.style.opacity = 1
         nextScreenContainer.current.style.opacity = 0
-        if (initialScreen) {
-            setCurrentScreen(initialScreen)
+        pushToNavigationStack(props.initialScreen, null, {
+            animation: Animations.Fade,
+            duration: 200,
+            easing: Easings.easeInOutQuart
+        })
+        if (props.initialScreen) {
+            setCurrentScreen(props.initialScreen)
         }
     }, [])
 
+    const pushToNavigationStack = (screen, previousScreenCache, animationInfo) => {
+        let ns = [
+            ...navigationStack
+        ]
+        if (ns.length > 1) {
+            ns[ns.length - 1].cache = previousScreenCache;
+        }
+        ns.push({
+            screen,
+            cache: null,
+            animationInfo
+        })
+        setNavigationStack(ns);
+    }
+
+    const popFromNavigationStack = _ => {
+        let ns = [...navigationStack];
+        ns.pop();
+        setNavigationStack(ns);
+    }
+
     useImperativeHandle(ref, _ => ({
-        switchTo(screenName, animation, duration, easing) {
+        navigate(screenName, animation, duration, easing) {
             // Ensure all properties have values
-            screenName = screenName || Object.keys(screens)[0]
+            screenName = screenName || Object.keys(props.screens)[0]
             animation = animation || Animations.Fade
             duration = duration || 500
             easing = easing || Easings.linearTween
 
-            // Set Screen Cache before navigating
-            let ss = {
-                ...screenStates,
-            }
-            if (screens[currentScreen].ref &&
-                screens[currentScreen].ref.current &&
-                screens[currentScreen].ref.current.cachedState !== undefined &&
-                screens[currentScreen].ref.current.cachedState !== null) {
-                ss[currentScreen] = screens[currentScreen].ref.current.cachedState()
-            } else {
-                console.log("failed to set screen state - screen:", screens[currentScreen].ref.current)
-                ss[currentScreen] = null
-            }
-            setScreenStates(ss)
+            // TODO: Set Cache of Previous Screen instead of null
+            pushToNavigationStack(screenName, null, {
+                animation,
+                duration,
+                easing
+            })
 
             // Prepare for Animation
             setNextScreen(screenName)
             let now = new Date().getTime();
             animationStart = now
-
-            // TODO: Restore Screen Cache before navigating
-            if (screens[screenName].ref &&
-                screens[screenName].ref.current &&
-                screens[screenName].ref.current.restoreCachedState !== undefined &&
-                screens[screenName].ref.current.restoreCachedState !== null) {
-                screens[screenName].ref.current.restoreCachedState(screenStates[screenName])
-            }
 
             // Start Animation
             switch (animation) {
@@ -83,6 +91,38 @@ const ScreenNavigator = forwardRef((props, ref) => {
                 setNextScreen(null)
             }, duration)
         },
+        goBack() {
+            const { screen } = navigationStack[navigationStack.length - 2]
+            const { animation, duration, easing } = navigationStack[navigationStack.length - 1].animationInfo
+
+            // Prepare for Animation
+            setNextScreen(screen)
+            let now = new Date().getTime();
+            animationStart = now
+
+            // Start Animation
+            switch (animation) {
+                case Animations.SlideFromRight:
+                    animateSlideFromLeft(duration, easing);
+                    break;
+                case Animations.SlideFromLeft:
+                    animateSlideFromRight(duration, easing);
+                    break;
+                case Animations.Fade:
+                default:
+                    animateFade(duration, easing);
+                    break;
+            }
+
+            // Clean Up
+            setTimeout(_ => {
+                setCurrentScreen(screen)
+                clearInterval(anim)
+                resetAnimationParams()
+                setNextScreen(null)
+                popFromNavigationStack()
+            }, duration)
+        }
     }))
 
     const animateSlideFromRight = (duration, easing) => {
@@ -138,19 +178,19 @@ const ScreenNavigator = forwardRef((props, ref) => {
     }
 
     return (
-        <div className="ScreenNavigator">
+        <div className="ScreenSwitcher">
             <div ref={nextScreenContainer} className="NextScreenContainer">
-                {screens[nextScreen]}
+                {props.screens[nextScreen]}
             </div>
             <div ref={currentScreenContainer} className="CurrentScreenContainer">
-                {screens[currentScreen]}
+                {props.screens[currentScreen]}
             </div>
         </div>
     )
 })
 
-ScreenNavigator.defaultProps = {
+ScreenSwitcher.defaultProps = {
     screens: {}
 }
 
-export default ScreenNavigator;
+export default ScreenSwitcher;

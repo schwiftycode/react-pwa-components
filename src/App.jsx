@@ -6,16 +6,14 @@ import './App.css';
 
 function App() {
   const switcher = useRef(null);
-
-  const screen1 = <First switcher={switcher} />
-
-  const screen2 = <Second switcher={switcher} />
+  const firstRef = useRef(null);
+  const secondRef = useRef(null);
 
   return (
     <div className="App" id="App">
       <ScreenSwitcher ref={switcher} screens={{
-        "Screen1": screen1,
-        "Screen2": screen2,
+        "Screen1": <First ref={firstRef} switcher={switcher} />,
+        "Screen2": <Second ref={secondRef} switcher={switcher} />,
       }} initialScreen="Screen1" />
     </div>
   );
