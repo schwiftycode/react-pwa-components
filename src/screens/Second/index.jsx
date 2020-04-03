@@ -13,13 +13,13 @@ const Second = props => {
         if (stateObject) {
             setTestValue(stateObject.testValue)
         }
-        return _ => {
-            let stateObject = {
-                testValue
-            }
-            props.switcher.current.storeState(screenName, stateObject)
-        }
     }, [])
+
+    const getState = _ => {
+        return {
+            testValue
+        }
+    }
 
     const pageStyle = {
         height: '100%',
@@ -53,7 +53,7 @@ const Second = props => {
 
             {/** Go to Screen 1 Button */}
             <input type='button' style={buttonStyle} value="Go to Screen 1" onClick={_ => {
-                props.switcher.current.switchTo('First', Animations.SlideFromLeft, 200, Easings.easeInOutQuart);
+                props.switcher.current.switchTo('First', Animations.SlideFromLeft, 200, Easings.easeInOutQuart, getState());
             }} />
 
         </div>

@@ -26,12 +26,17 @@ const ScreenNavigator = forwardRef((props, ref) => {
     }, [])
 
     useImperativeHandle(ref, _ => ({
-        switchTo(screenName, animation, duration, easing) {
+        switchTo(screenName, animation, duration, easing, previousState) {
             // Ensure all properties have values
             screenName = screenName || Object.keys(screens)[0]
             animation = animation || Animations.Fade
             duration = duration || 500
             easing = easing || Easings.linearTween
+
+            // Set previous state in screen states
+            let ss = {...screenStates}
+            ss[currentScreen] = previousState
+            setScreenStates(ss);
 
             // Prepare for Animation
             setNextScreen(screenName)
@@ -61,13 +66,13 @@ const ScreenNavigator = forwardRef((props, ref) => {
             }, duration)
         },
         storeState(screen, stateObject) {
-            console.log('Storing state for ', screen)
+            // console.log('Storing state for ', screen)
             let ss = {...screenStates}
             ss[screen] = stateObject
             setScreenStates(ss)
         },
         getState(screen) {
-            console.log('Restoring state for ', screen)
+            // console.log('Restoring state for ', screen)
             if (screenStates[screen]) {
                 return screenStates[screen]
             }

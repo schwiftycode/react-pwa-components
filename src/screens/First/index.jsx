@@ -13,14 +13,15 @@ const First = props => {
         let stateObject = props.switcher.current.getState(screenName)
         if (stateObject) {
             setInputValue(stateObject.inputValue)
-        }
-        return _ => {
-            let stateObject = {
-                "inputValue": inputValue
-            }
-            props.switcher.current.storeState(screenName, stateObject)
+            console.log("Get Input Value: ", stateObject.inputValue)
         }
     }, [])
+
+    const getState = _ => {
+        return {
+            inputValue
+        }
+    }
 
     return (
         <div className="page" style={{
@@ -30,7 +31,7 @@ const First = props => {
 
             {/** Go to Screen 2 Button */}
             <input type='button' value="Go to Screen 2" onClick={_ => {
-                props.switcher.current.switchTo('Second', Animations.SlideFromRight, 200, Easings.easeInOutQuart);
+                props.switcher.current.switchTo('Second', Animations.SlideFromRight, 200, Easings.easeInOutQuart, getState());
             }} />
 
             {/** Show Push Notification Button */}
