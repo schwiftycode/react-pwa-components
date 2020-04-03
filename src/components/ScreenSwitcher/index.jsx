@@ -33,33 +33,10 @@ const ScreenNavigator = forwardRef((props, ref) => {
             duration = duration || 500
             easing = easing || Easings.linearTween
 
-            // Set Screen Cache before navigating
-            let ss = {
-                ...screenStates,
-            }
-            if (screens[currentScreen].ref &&
-                screens[currentScreen].ref.current &&
-                screens[currentScreen].ref.current.cachedState !== undefined &&
-                screens[currentScreen].ref.current.cachedState !== null) {
-                ss[currentScreen] = screens[currentScreen].ref.current.cachedState()
-            } else {
-                console.log("failed to set screen state - screen:", screens[currentScreen].ref.current)
-                ss[currentScreen] = null
-            }
-            setScreenStates(ss)
-
             // Prepare for Animation
             setNextScreen(screenName)
             let now = new Date().getTime();
             animationStart = now
-
-            // TODO: Restore Screen Cache before navigating
-            if (screens[screenName].ref &&
-                screens[screenName].ref.current &&
-                screens[screenName].ref.current.restoreCachedState !== undefined &&
-                screens[screenName].ref.current.restoreCachedState !== null) {
-                screens[screenName].ref.current.restoreCachedState(screenStates[screenName])
-            }
 
             // Start Animation
             switch (animation) {
@@ -82,6 +59,19 @@ const ScreenNavigator = forwardRef((props, ref) => {
                 resetAnimationParams()
                 setNextScreen(null)
             }, duration)
+        },
+        storeState(screen, stateObject) {
+            console.log('Storing state for ', screen)
+            let ss = {...screenStates}
+            ss[screen] = stateObject
+            setScreenStates(ss)
+        },
+        getState(screen) {
+            console.log('Restoring state for ', screen)
+            if (screenStates[screen]) {
+                return screenStates[screen]
+            }
+            return null
         },
     }))
 

@@ -1,21 +1,26 @@
-import React, { useState, useRef, useImperativeHandle, forwardRef, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import Animations from '../../components/Scripts/Animations';
 import Easings from '../../components/Scripts/Easings';
 import Notifications from '../../components/Notification/Notifications';
 
 import '../style.scss';
 
-const First = forwardRef((props, ref) => {
+const First = props => {
+    const screenName = "First"
     const [inputValue, setInputValue] = useState('');
 
-    useImperativeHandle(ref, _ => ({
-        cachedState() {
-            return { inputValue }
-        },
-        restoreCachedState(stateObject) {
-            inputValue = stateObject.inputValue
+    useEffect(_ => {
+        let stateObject = props.switcher.current.getState(screenName)
+        if (stateObject) {
+            setInputValue(stateObject.inputValue)
         }
-    }))
+        return _ => {
+            let stateObject = {
+                "inputValue": inputValue
+            }
+            props.switcher.current.storeState(screenName, stateObject)
+        }
+    }, [])
 
     return (
         <div className="page" style={{
@@ -25,7 +30,7 @@ const First = forwardRef((props, ref) => {
 
             {/** Go to Screen 2 Button */}
             <input type='button' value="Go to Screen 2" onClick={_ => {
-                props.switcher.current.switchTo('Screen2', Animations.SlideFromRight, 200, Easings.easeInOutQuart);
+                props.switcher.current.switchTo('Second', Animations.SlideFromRight, 200, Easings.easeInOutQuart);
             }} />
 
             {/** Show Push Notification Button */}
@@ -60,6 +65,6 @@ const First = forwardRef((props, ref) => {
 
         </div>
     )
-})
+}
 
 export default First;

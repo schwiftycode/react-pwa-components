@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, forwardRef, useImperativeHandle } from 'react';
 import ReactDOM from 'react-dom';
 import Icon from '@mdi/react';
-import { mdiAccount, mdiCloseCircle } from '@mdi/js';
+import { mdiCloseCircle } from '@mdi/js';
 
 import './style.scss';
 

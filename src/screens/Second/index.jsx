@@ -1,20 +1,25 @@
-import React, {useState, forwardRef, useImperativeHandle} from 'react';
+import React, {useState, useEffect} from 'react';
 import Animations from '../../components/Scripts/Animations';
 import Easings from '../../components/Scripts/Easings';
 
 import '../style.scss';
 
-const Second = forwardRef((props, ref) => {
+const Second = props => {
+    const screenName = "Second"
     const [testValue, setTestValue] = useState('asdf');
 
-    useImperativeHandle(ref, _ => ({
-        cachedState() {
-            return { testValue }
-        },
-        restoreCachedState(stateObject) {
-            testValue = stateObject.testValue
+    useEffect(_ => {
+        let stateObject = props.switcher.current.getState(screenName)
+        if (stateObject) {
+            setTestValue(stateObject.testValue)
         }
-    }))
+        return _ => {
+            let stateObject = {
+                testValue
+            }
+            props.switcher.current.storeState(screenName, stateObject)
+        }
+    }, [])
 
     const pageStyle = {
         height: '100%',
@@ -48,11 +53,11 @@ const Second = forwardRef((props, ref) => {
 
             {/** Go to Screen 1 Button */}
             <input type='button' style={buttonStyle} value="Go to Screen 1" onClick={_ => {
-                props.switcher.current.switchTo('Screen1', Animations.SlideFromLeft, 200, Easings.easeInOutQuart);
+                props.switcher.current.switchTo('First', Animations.SlideFromLeft, 200, Easings.easeInOutQuart);
             }} />
 
         </div>
     )
-})
+}
 
 export default Second;
