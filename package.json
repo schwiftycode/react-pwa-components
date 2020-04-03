@@ -1,6 +1,6 @@
 {
   "name": "react-pwa-components",
-  "version": "1.0.9",
+  "version": "1.0.10",
   "private": false,
   "main": "index.js",
   "babel": {
@@ -24,7 +24,7 @@
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "build-npm": "rm -rf dist && mkdir dist && babel src/components -d dist --copy-files && babel package.json -d dist --copy-files",
+    "build-npm": "rm -rf dist && mkdir dist && babel src/components -d dist --copy-files && babel package.json -d dist --copy-files && babel README.md -d dist --copy-files",
     "publish-npm-patch": "npm --no-git-tag-version version patch -f && npm run build-npm && cd dist && npm publish && cd ..",
     "publish-npm-minor": "npm --no-git-tag-version version minor -f && npm run build-npm && cd dist && npm publish && cd ..",
     "publish-npm-major": "npm --no-git-tag-version version major -f && npm run build-npm && cd dist && npm publish && cd .."
