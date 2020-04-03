@@ -26,7 +26,7 @@ const ScreenNavigator = forwardRef((props, ref) => {
     }, [])
 
     useImperativeHandle(ref, _ => ({
-        switchTo(screenName, animation, duration, easing, previousState) {
+        switchTo: (screenName, animation, duration, easing, previousState) => {
             // Ensure all properties have values
             screenName = screenName || Object.keys(screens)[0]
             animation = animation || Animations.Fade
@@ -65,19 +65,31 @@ const ScreenNavigator = forwardRef((props, ref) => {
                 setNextScreen(null)
             }, duration)
         },
-        storeState(screen, stateObject) {
+        storeState: (screen, stateObject) => {
             // console.log('Storing state for ', screen)
             let ss = {...screenStates}
             ss[screen] = stateObject
             setScreenStates(ss)
         },
-        getState(screen) {
+        getState: screen => {
             // console.log('Restoring state for ', screen)
             if (screenStates[screen]) {
                 return screenStates[screen]
             }
             return null
         },
+        clearState: screen => {
+            let ss = {...screenStates}
+            ss[screen] = null
+            setScreenStates(ss)
+        },
+        clearStates: _ => {
+            let ss = {...screenStates}
+            Object.keys(screenStates).forEach(screen => {
+                ss[screen] = null
+            })
+            setScreenStates(ss)
+        }
     }))
 
     const animateSlideFromRight = (duration, easing) => {

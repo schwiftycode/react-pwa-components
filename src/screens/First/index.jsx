@@ -63,6 +63,10 @@ const First = props => {
             }} />
 
             <input type="text" value={inputValue} placeholder="Cache Test" onChange={e => setInputValue(e.target.value)} />
+            
+            <input type='button' value="Clear States" onClick={_ => {
+                props.switcher.current.clearStates()
+            }} />
 
         </div>
     )
