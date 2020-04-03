@@ -1,7 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import Animations from '../../components/Scripts/Animations';
-import Easings from '../../components/Scripts/Easings';
-import Notifications from '../../components/Notification/Notifications';
+import { Toasts, Notifications, Animations, Easings } from '../../components';
 
 import '../style.scss';
 
@@ -62,10 +60,14 @@ const First = props => {
                 )
             }} />
 
-            <input type="text" value={inputValue} placeholder="Cache Test" onChange={e => setInputValue(e.target.value)} />
+            <input type="text" value={inputValue} placeholder="State Cache Test" onChange={e => setInputValue(e.target.value)} />
             
             <input type='button' value="Clear States" onClick={_ => {
                 props.switcher.current.clearStates()
+            }} />
+            
+            <input type='button' value="Show Toast Message" onClick={_ => {
+                Toasts.show("Testing 1.. 2..")
             }} />
 
         </div>

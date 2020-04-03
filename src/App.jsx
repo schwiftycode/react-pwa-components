@@ -3,6 +3,7 @@ import ScreenSwitcher from './components/ScreenSwitcher';
 import { First, Second } from './screens';
 
 import './App.css';
+import Toast from './components/Toast';
 
 function App() {
   const switcher = useRef(null);
