@@ -10,8 +10,10 @@ const ScreenNavigator = forwardRef((props, ref) => {
     const [screenStates, setScreenStates] = useState({})
     const [currentScreen, setCurrentScreen] = useState(null)
     const [nextScreen, setNextScreen] = useState(null)
+    const [overlayScreen, setOverlayScreen] = useState(null)
     const currentScreenContainer = useRef(null)
     const nextScreenContainer = useRef(null)
+    const overlayScreenContainer = useRef(null)
 
     let anim = null;
     let animationStart = 0
@@ -20,6 +22,7 @@ const ScreenNavigator = forwardRef((props, ref) => {
         setScreens(props.screens)
         currentScreenContainer.current.style.opacity = 1
         nextScreenContainer.current.style.opacity = 0
+        overlayScreenContainer.current.style.opacity = 0
         if (initialScreen) {
             setCurrentScreen(initialScreen)
         }
@@ -34,7 +37,7 @@ const ScreenNavigator = forwardRef((props, ref) => {
             easing = easing || Easings.linearTween
 
             // Set previous state in screen states
-            let ss = {...screenStates}
+            let ss = { ...screenStates }
             ss[currentScreen] = previousState
             setScreenStates(ss);
 
@@ -43,19 +46,7 @@ const ScreenNavigator = forwardRef((props, ref) => {
             let now = new Date().getTime();
             animationStart = now
 
-            // Start Animation
-            switch (animation) {
-                case Animations.SlideFromRight:
-                    animateSlideFromRight(duration, easing);
-                    break;
-                case Animations.SlideFromLeft:
-                    animateSlideFromLeft(duration, easing);
-                    break;
-                case Animations.Fade:
-                default:
-                    animateFade(duration, easing);
-                    break;
-            }
+            startAnimation(currentScreenContainer, nextScreenContainer, animation, duration, easing)
 
             // Clean Up
             setTimeout(_ => {
@@ -63,11 +54,50 @@ const ScreenNavigator = forwardRef((props, ref) => {
                 clearInterval(anim)
                 resetAnimationParams()
                 setNextScreen(null)
-            }, duration)
+            }, duration + 100)
+        },
+        presentOverlay: (screenName, animation, duration, easing) => {
+            // Ensure all properties have values
+            screenName = screenName || Object.keys(screens)[0]
+            animation = animation || Animations.Fade
+            duration = duration || 500
+            easing = easing || Easings.linearTween
+
+            // Prepare for Animation
+            setOverlayScreen(screenName)
+            let now = new Date().getTime();
+            animationStart = now
+
+            startAnimation(null, overlayScreenContainer, animation, duration, easing)
+
+            // Clean Up
+            setTimeout(_ => {
+                clearInterval(anim)
+                resetAnimationParams()
+            }, duration + 100)
+        },
+        dismissOverlay: (animation, duration, easing) => {
+            // Ensure all properties have values
+            animation = animation || Animations.Fade
+            duration = duration || 500
+            easing = easing || Easings.linearTween
+
+            // Prepare for Animation
+            let now = new Date().getTime();
+            animationStart = now
+
+            startAnimation(overlayScreenContainer, null, animation, duration, easing)
+
+            // Clean Up
+            setTimeout(_ => {
+                setOverlayScreen(null)
+                clearInterval(anim)
+                resetAnimationParams()
+            }, duration + 100)
         },
         storeState: (screen, stateObject) => {
             // console.log('Storing state for ', screen)
-            let ss = {...screenStates}
+            let ss = { ...screenStates }
             ss[screen] = stateObject
             setScreenStates(ss)
         },
@@ -79,12 +109,12 @@ const ScreenNavigator = forwardRef((props, ref) => {
             return null
         },
         clearState: screen => {
-            let ss = {...screenStates}
+            let ss = { ...screenStates }
             ss[screen] = null
             setScreenStates(ss)
         },
         clearStates: _ => {
-            let ss = {...screenStates}
+            let ss = { ...screenStates }
             Object.keys(screenStates).forEach(screen => {
                 ss[screen] = null
             })
@@ -92,40 +122,79 @@ const ScreenNavigator = forwardRef((props, ref) => {
         }
     }))
 
-    const animateSlideFromRight = (duration, easing) => {
+    const startAnimation = (cScreen, nScreen, animation, duration, easing) => {
+        switch (animation) {
+            case Animations.SlideFromRight:
+                animateSlideFromRight(cScreen, nScreen, duration, easing);
+                break;
+            case Animations.SlideFromLeft:
+                animateSlideFromLeft(cScreen, nScreen, duration, easing);
+                break;
+            case Animations.Fade:
+            default:
+                animateFade(cScreen, nScreen, duration, easing);
+                break;
+        }
+    }
+
+    const animateSlideFromRight = (cScreen, nScreen, duration, easing) => {
         // Prepare for animation
-        nextScreenContainer.current.style.opacity = 1
-        currentScreenContainer.current.style.opacity = 1
-        nextScreenContainer.current.style.transform = 'translate(100vw, 0)'
-        currentScreenContainer.current.style.transform = 'translate(0, 0)'
+        if (cScreen) {
+            cScreen.current.style.opacity = 1
+            cScreen.current.style.transform = 'translate(0, 0)'
+        }
+        if (nScreen) {
+            nScreen.current.style.opacity = 1
+            nScreen.current.style.transform = 'translate(100vw, 0)'
+        }
         // Execute animation
         anim = setInterval(_ => {
-            nextScreenContainer.current.style.transform = `translate(${(1 - animPosition(duration, easing)) * 100}vw, 0)`
-            currentScreenContainer.current.style.transform = `translate(${animPosition(duration, easing) * -100}vw, 0)`
+            if (cScreen) {
+                cScreen.current.style.transform = `translate(${animPosition(duration, easing) * -100}vw, 0)`
+            }
+            if (nScreen) {
+                nScreen.current.style.transform = `translate(${(1 - animPosition(duration, easing)) * 100}vw, 0)`
+            }
         }, (1000 / 60));
     }
 
-    const animateSlideFromLeft = (duration, easing) => {
+    const animateSlideFromLeft = (cScreen, nScreen, duration, easing) => {
         // Prepare for animation
-        nextScreenContainer.current.style.opacity = 1
-        currentScreenContainer.current.style.opacity = 1
-        nextScreenContainer.current.style.transform = 'translate(-100vw, 0)'
-        currentScreenContainer.current.style.transform = 'translate(0, 0)'
+        if (cScreen) {
+            cScreen.current.style.opacity = 1
+            cScreen.current.style.transform = 'translate(0, 0)'
+        }
+        if (nScreen) {
+            nScreen.current.style.opacity = 1
+            nScreen.current.style.transform = 'translate(-100vw, 0)'
+        }
         // Execute animation
         anim = setInterval(_ => {
-            nextScreenContainer.current.style.transform = `translate(${(1 - animPosition(duration, easing)) * -100}vw, 0)`
-            currentScreenContainer.current.style.transform = `translate(${animPosition(duration, easing) * 100}vw, 0)`
+            if (cScreen) {
+                cScreen.current.style.transform = `translate(${animPosition(duration, easing) * 100}vw, 0)`
+            }
+            if (nScreen) {
+                nScreen.current.style.transform = `translate(${(1 - animPosition(duration, easing)) * -100}vw, 0)`
+            }
         }, (1000 / 60));
     }
 
-    const animateFade = (duration, easing) => {
+    const animateFade = (cScreen, nScreen, duration, easing) => {
         // Prepare for animation
-        nextScreenContainer.current.style.opacity = 0
-        currentScreenContainer.current.style.opacity = 1
+        if (cScreen) {
+            cScreen.current.style.opacity = 1
+        }
+        if (nScreen) {
+            nScreen.current.style.opacity = 0
+        }
         // Execute animation
         anim = setInterval(_ => {
-            nextScreenContainer.current.style.opacity = animPosition(duration, easing)
-            currentScreenContainer.current.style.opacity = 1 - animPosition(duration, easing)
+            if (cScreen) {
+                cScreen.current.style.opacity = 1 - animPosition(duration, easing)
+            }
+            if (nScreen) {
+                nScreen.current.style.opacity = animPosition(duration, easing)
+            }
         }, (1000 / 60));
     }
 
@@ -151,6 +220,9 @@ const ScreenNavigator = forwardRef((props, ref) => {
             </div>
             <div ref={currentScreenContainer} className="CurrentScreenContainer">
                 {screens[currentScreen]}
+            </div>
+            <div ref={overlayScreenContainer} className="OverlayScreenContainer" style={{ pointerEvents: overlayScreen ? 'auto' : 'none' }}>
+                {screens[overlayScreen]}
             </div>
         </div>
     )

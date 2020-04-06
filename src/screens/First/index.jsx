@@ -69,6 +69,10 @@ const First = props => {
             <input type='button' value="Show Toast Message" onClick={_ => {
                 Toasts.show("Testing 1.. 2..")
             }} />
+            
+            <input type='button' value="Present Overlay" onClick={_ => {
+                props.switcher.current.presentOverlay('Overlay', Animations.Fade, 100, Easings.linearTween);
+            }} />
 
         </div>
     )
