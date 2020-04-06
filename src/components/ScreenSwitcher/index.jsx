@@ -130,6 +130,12 @@ const ScreenNavigator = forwardRef((props, ref) => {
             case Animations.SlideFromLeft:
                 animateSlideFromLeft(cScreen, nScreen, duration, easing);
                 break;
+            case Animations.SlideFromBottom:
+                animateSlideFromBottom(cScreen, nScreen, duration, easing);
+                break;
+            case Animations.SlideFromTop:
+                animateSlideFromTop(cScreen, nScreen, duration, easing);
+                break;
             case Animations.Fade:
             default:
                 animateFade(cScreen, nScreen, duration, easing);
@@ -179,6 +185,48 @@ const ScreenNavigator = forwardRef((props, ref) => {
         }, (1000 / 60));
     }
 
+    const animateSlideFromBottom = (cScreen, nScreen, duration, easing) => {
+        // Prepare for animation
+        if (cScreen) {
+            cScreen.current.style.opacity = 1
+            cScreen.current.style.transform = 'translate(0, 0)'
+        }
+        if (nScreen) {
+            nScreen.current.style.opacity = 1
+            nScreen.current.style.transform = 'translate(0, 100vh)'
+        }
+        // Execute animation
+        anim = setInterval(_ => {
+            if (cScreen) {
+                cScreen.current.style.transform = `translate(0, ${animPosition(duration, easing) * 100}vh)`
+            }
+            if (nScreen) {
+                nScreen.current.style.transform = `translate(0, ${(1 - animPosition(duration, easing)) * 100}vh)`
+            }
+        }, (1000 / 60));
+    }
+
+    const animateSlideFromTop = (cScreen, nScreen, duration, easing) => {
+        // Prepare for animation
+        if (cScreen) {
+            cScreen.current.style.opacity = 1
+            cScreen.current.style.transform = 'translate(0, 0)'
+        }
+        if (nScreen) {
+            nScreen.current.style.opacity = 1
+            nScreen.current.style.transform = 'translate(0, -100vh)'
+        }
+        // Execute animation
+        anim = setInterval(_ => {
+            if (cScreen) {
+                cScreen.current.style.transform = `translate(0, ${animPosition(duration, easing) * 100}vh)`
+            }
+            if (nScreen) {
+                nScreen.current.style.transform = `translate(0, ${(1 - animPosition(duration, easing)) * -100}vh)`
+            }
+        }, (1000 / 60));
+    }
+
     const animateFade = (cScreen, nScreen, duration, easing) => {
         // Prepare for animation
         if (cScreen) {
@@ -201,7 +249,7 @@ const ScreenNavigator = forwardRef((props, ref) => {
     const animPosition = (duration, easing) => {
         const now = new Date().getTime()
         const animStart = animationStart
-        const animPercent = (now - animStart) / duration
+        const animPercent = Math.min(1, (now - animStart) / duration)
         const animEasePercent = easing(animPercent, 0, 1, 1)
         return animEasePercent
     }

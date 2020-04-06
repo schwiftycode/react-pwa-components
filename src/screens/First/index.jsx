@@ -71,7 +71,7 @@ const First = props => {
             }} />
             
             <input type='button' value="Present Overlay" onClick={_ => {
-                props.switcher.current.presentOverlay('Overlay', Animations.Fade, 100, Easings.linearTween);
+                props.switcher.current.presentOverlay('Overlay', Animations.SlideFromBottom, 200, Easings.linearTween);
             }} />
 
         </div>
