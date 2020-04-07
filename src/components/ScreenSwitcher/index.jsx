@@ -1,7 +1,7 @@
 import React, { useState, useRef, useImperativeHandle, forwardRef, useEffect } from 'react';
 import ReactDOM from 'react-dom';
-import Animations from '../Scripts/Animations';
-import Easings from '../Scripts/Easings';
+import { Animations, Easings } from "../index";
+import $ from 'jquery';
 
 import './style.scss';
 
@@ -10,20 +10,16 @@ const ScreenNavigator = forwardRef((props, ref) => {
     // Props
     let { initialScreen, screens } = props
 
-    // State variables
-    const [currentScreen, setCurrentScreen] = useState(null)
-    const [nextScreen, setNextScreen] = useState(null)
-    const [overlayScreen, setOverlayScreen] = useState(null)
-
     // Refs
     const rootContainer = useRef(null)
-    const currentScreenContainer = useRef(null)
-    const nextScreenContainer = useRef(null)
-    const overlayScreenContainer = useRef(null)
 
     // locals
-    let anim = null;
+    let anim = null
+    let animEnd = null
     let animationStart = 0
+    let currentScreenContainerClass = 'CurrentScreenContainer'
+    let nextScreenContainerClass = 'NextScreenContainer'
+    let overlayScreenContainerClass = 'OverlayScreenContainer'
 
     useEffect(_ => {
         Object.keys(screens).forEach(key => {
@@ -32,68 +28,136 @@ const ScreenNavigator = forwardRef((props, ref) => {
     }, [])
 
     useImperativeHandle(ref, _ => ({
-        switchTo: (screenName, animation, duration, easing, previousState) => {
-            // Ensure all properties have values
-            screenName = screenName || Object.keys(screens)[0]
-            animation = animation || Animations.Fade
-            duration = duration || 500
-            easing = easing || Easings.linearTween
-
-            // Prepare for Animation
-            setNextScreen(screenName)
-            let now = new Date().getTime();
-            animationStart = now
-
-            startAnimation(currentScreenContainer, nextScreenContainer, animation, duration, easing)
-
-            // Clean Up
-            setTimeout(_ => {
-                setCurrentScreen(screenName)
-                clearInterval(anim)
-                resetAnimationParams()
-                setNextScreen(null)
-            }, duration + 100)
-        },
-        presentOverlay: (screenName, animation, duration, easing) => {
-            // Ensure all properties have values
-            screenName = screenName || Object.keys(screens)[0]
-            animation = animation || Animations.Fade
-            duration = duration || 500
-            easing = easing || Easings.linearTween
-
-            // Prepare for Animation
-            setOverlayScreen(screenName)
-            let now = new Date().getTime();
-            animationStart = now
-
-            startAnimation(null, overlayScreenContainer, animation, duration, easing)
-
-            // Clean Up
-            setTimeout(_ => {
-                clearInterval(anim)
-                resetAnimationParams()
-            }, duration + 100)
-        },
-        dismissOverlay: (animation, duration, easing) => {
-            // Ensure all properties have values
-            animation = animation || Animations.Fade
-            duration = duration || 500
-            easing = easing || Easings.linearTween
-
-            // Prepare for Animation
-            let now = new Date().getTime();
-            animationStart = now
-
-            startAnimation(overlayScreenContainer, null, animation, duration, easing)
-
-            // Clean Up
-            setTimeout(_ => {
-                setOverlayScreen(null)
-                clearInterval(anim)
-                resetAnimationParams()
-            }, duration + 100)
-        },
+        present: present,
+        switchTo: switchTo,
+        presentOverlay: presentOverlay,
+        dismissOverlay: dismissOverlay,
     }))
+
+    const resetAnimation = _ => {
+        if (anim) {
+            clearInterval(anim)
+            anim = null
+            if (animEnd) {
+                clearTimeout(animEnd)
+                animEnd = null
+            }
+        }
+    }
+
+    const present = (screenName, animation) => {
+        if (anim) {
+            resetAnimation()
+            
+            const currentScreenContainer = $(`.${currentScreenContainerClass}`)
+            const nextScreenContainer = $(`.${nextScreenContainerClass}`)
+            
+            // currentScreenContainer.removeClass(currentScreenContainerClass)
+            nextScreenContainer.removeClass(nextScreenContainerClass)
+            nextScreenContainer.addClass(currentScreenContainerClass)
+        }
+
+        // Ensure all properties have values
+        animation = validateAnimationObject(animation);
+
+        // Prepare for Animation
+        const now = new Date().getTime()
+        animationStart = now
+
+        // Get Screens
+        const currentScreenContainer = $(`.${currentScreenContainerClass}`)
+        const nextScreenContainer = $(`#${screenName}`)
+        nextScreenContainer.addClass(nextScreenContainerClass)
+
+        // Start Animation
+        startAnimation(currentScreenContainer, nextScreenContainer, animation.animation, animation.duration, animation.easing)
+
+        // Clean Up
+        animEnd = setTimeout(_ => {
+            currentScreenContainer.removeClass(currentScreenContainerClass)
+            nextScreenContainer.removeClass(nextScreenContainerClass)
+            nextScreenContainer.addClass(currentScreenContainerClass)
+            resetAnimation()
+        }, animation.duration + 100)
+    }
+
+    const switchTo = (screenName, animation, duration, easing) => {
+        console.log("The switchTo function has been deprecated and has been replaced with present(screenName, animationObject)")
+
+        // Ensure all properties have values
+        screenName = screenName || Object.keys(screens)[0]
+        let animObj = {
+            animation: animation,
+            duration: duration,
+            easing: easing
+        }
+        animObj = validateAnimationObject(animObj)
+
+        // Use present instead of switchTo
+        present(screenName, animObj)
+    }
+
+    const presentOverlay = (screenName, animation) => {
+        if (anim) {
+            resetAnimation()
+        }
+
+        // Ensure all properties have values
+        animation = validateAnimationObject(animation);
+
+        // Prepare for Animation
+        let now = new Date().getTime();
+        animationStart = now
+
+        // Get Screens
+        const overlayScreenContainer = $(`#${screenName}`)
+        overlayScreenContainer.addClass(overlayScreenContainerClass)
+
+        // Start Animation
+        startAnimation(null, overlayScreenContainer, animation.animation, animation.duration, animation.easing)
+
+        // Clean Up
+        animEnd = setTimeout(_ => {
+            resetAnimation()
+        }, animation.duration + 100)
+    }
+
+    const dismissOverlay = (animation) => {
+        if (anim) {
+            resetAnimation()
+            
+            const overlayScreenContainer = $(`.${overlayScreenContainerClass}`)
+            
+            overlayScreenContainer.removeClass(overlayScreenContainerClass)
+        }
+        // Ensure all properties have values
+        animation = validateAnimationObject(animation);
+
+        // Prepare for Animation
+        let now = new Date().getTime();
+        animationStart = now
+
+        // Get Screens
+        const overlayScreenContainer = $(`.${overlayScreenContainerClass}`).last()
+        overlayScreenContainer.addClass(overlayScreenContainerClass)
+
+        // Start Animation
+        startAnimation(overlayScreenContainer, null, animation.animation, animation.duration, animation.easing)
+
+        // Clean Up
+        animEnd = setTimeout(_ => {
+            overlayScreenContainer.removeClass(overlayScreenContainerClass)
+            resetAnimation();
+        }, animation.duration + 100)
+    }
+
+    const validateAnimationObject = (animObj) => {
+        animObj.animation = animObj.animation || Animations.Fade
+        animObj.duration = animObj.duration || 500
+        animObj.easing = animObj.easing || Easings.linearTween
+
+        return animObj
+    }
 
     const startAnimation = (cScreen, nScreen, animation, duration, easing) => {
         switch (animation) {
@@ -119,20 +183,24 @@ const ScreenNavigator = forwardRef((props, ref) => {
     const animateSlideFromRight = (cScreen, nScreen, duration, easing) => {
         // Prepare for animation
         if (cScreen) {
-            cScreen.current.style.opacity = 1
-            cScreen.current.style.transform = 'translate(0, 0)'
+            cScreen.css({
+                opacity: 1,
+                transform: 'translate(0,0)'
+            })
         }
         if (nScreen) {
-            nScreen.current.style.opacity = 1
-            nScreen.current.style.transform = 'translate(100vw, 0)'
+            nScreen.css({
+                opacity: 1,
+                transform: 'translate(100vw,0)'
+            })
         }
         // Execute animation
         anim = setInterval(_ => {
             if (cScreen) {
-                cScreen.current.style.transform = `translate(${animPosition(duration, easing) * -100}vw, 0)`
+                cScreen.css('transform', `translate(${animPosition(duration, easing) * -100}vw, 0)`)
             }
             if (nScreen) {
-                nScreen.current.style.transform = `translate(${(1 - animPosition(duration, easing)) * 100}vw, 0)`
+                nScreen.css('transform', `translate(${(1 - animPosition(duration, easing)) * 100}vw, 0)`)
             }
         }, (1000 / 60));
     }
@@ -140,20 +208,24 @@ const ScreenNavigator = forwardRef((props, ref) => {
     const animateSlideFromLeft = (cScreen, nScreen, duration, easing) => {
         // Prepare for animation
         if (cScreen) {
-            cScreen.current.style.opacity = 1
-            cScreen.current.style.transform = 'translate(0, 0)'
+            cScreen.css({
+                opacity: 1,
+                transform: 'translate(0,0)'
+            })
         }
         if (nScreen) {
-            nScreen.current.style.opacity = 1
-            nScreen.current.style.transform = 'translate(-100vw, 0)'
+            nScreen.css({
+                opacity: 1,
+                transform: 'translate(-100vw,0)'
+            })
         }
         // Execute animation
         anim = setInterval(_ => {
             if (cScreen) {
-                cScreen.current.style.transform = `translate(${animPosition(duration, easing) * 100}vw, 0)`
+                cScreen.css('transform', `translate(${animPosition(duration, easing) * 100}vw, 0)`)
             }
             if (nScreen) {
-                nScreen.current.style.transform = `translate(${(1 - animPosition(duration, easing)) * -100}vw, 0)`
+                nScreen.css('transform', `translate(${(1 - animPosition(duration, easing)) * -100}vw, 0)`)
             }
         }, (1000 / 60));
     }
@@ -161,20 +233,24 @@ const ScreenNavigator = forwardRef((props, ref) => {
     const animateSlideFromBottom = (cScreen, nScreen, duration, easing) => {
         // Prepare for animation
         if (cScreen) {
-            cScreen.current.style.opacity = 1
-            cScreen.current.style.transform = 'translate(0, 0)'
+            cScreen.css({
+                opacity: 1,
+                transform: 'translate(0,0)'
+            })
         }
         if (nScreen) {
-            nScreen.current.style.opacity = 1
-            nScreen.current.style.transform = 'translate(0, 100vh)'
+            nScreen.css({
+                opacity: 1,
+                transform: 'translate(0,100vh)'
+            })
         }
         // Execute animation
         anim = setInterval(_ => {
             if (cScreen) {
-                cScreen.current.style.transform = `translate(0, ${animPosition(duration, easing) * 100}vh)`
+                cScreen.css('transform', `translate(0, ${animPosition(duration, easing) * 100}vh)`)
             }
             if (nScreen) {
-                nScreen.current.style.transform = `translate(0, ${(1 - animPosition(duration, easing)) * 100}vh)`
+                nScreen.css('transform', `translate(0, ${(1 - animPosition(duration, easing)) * 100}vh)`)
             }
         }, (1000 / 60));
     }
@@ -182,20 +258,24 @@ const ScreenNavigator = forwardRef((props, ref) => {
     const animateSlideFromTop = (cScreen, nScreen, duration, easing) => {
         // Prepare for animation
         if (cScreen) {
-            cScreen.current.style.opacity = 1
-            cScreen.current.style.transform = 'translate(0, 0)'
+            cScreen.css({
+                opacity: 1,
+                transform: 'translate(0,0)'
+            })
         }
         if (nScreen) {
-            nScreen.current.style.opacity = 1
-            nScreen.current.style.transform = 'translate(0, -100vh)'
+            nScreen.css({
+                opacity: 1,
+                transform: 'translate(0,-100vh)'
+            })
         }
         // Execute animation
         anim = setInterval(_ => {
             if (cScreen) {
-                cScreen.current.style.transform = `translate(0, ${animPosition(duration, easing) * 100}vh)`
+                cScreen.css('transform', `translate(0, ${animPosition(duration, easing) * 100}vh)`)
             }
             if (nScreen) {
-                nScreen.current.style.transform = `translate(0, ${(1 - animPosition(duration, easing)) * -100}vh)`
+                nScreen.css('transform', `translate(0, ${(1 - animPosition(duration, easing)) * -100}vh)`)
             }
         }, (1000 / 60));
     }
@@ -203,18 +283,18 @@ const ScreenNavigator = forwardRef((props, ref) => {
     const animateFade = (cScreen, nScreen, duration, easing) => {
         // Prepare for animation
         if (cScreen) {
-            cScreen.current.style.opacity = 1
+            cScreen.css('opacity', 1)
         }
         if (nScreen) {
-            nScreen.current.style.opacity = 0
+            nScreen.css('opacity', 0)
         }
         // Execute animation
         anim = setInterval(_ => {
             if (cScreen) {
-                cScreen.current.style.opacity = 1 - animPosition(duration, easing)
+                cScreen.css('opacity', 1 - animPosition(duration, easing))
             }
             if (nScreen) {
-                nScreen.current.style.opacity = animPosition(duration, easing)
+                nScreen.css('opacity', animPosition(duration, easing))
             }
         }, (1000 / 60));
     }
@@ -227,22 +307,14 @@ const ScreenNavigator = forwardRef((props, ref) => {
         return animEasePercent
     }
 
-    const resetAnimationParams = _ => {
-        nextScreenContainer.current.style.opacity = 0
-        currentScreenContainer.current.style.opacity = 1
-        nextScreenContainer.current.style.transform = 'translate(0, 0)'
-        currentScreenContainer.current.style.transform = 'translate(0, 0)'
-    }
-
     const addScreenToDOM = (screenName, screen) => {
         let screenContainer = document.createElement('div')
         screenContainer.id = screenName
-        screenContainer.className = 'ScreenContainer'
+        $(screenContainer).addClass('ScreenContainer')
         if (initialScreen === screenName) {
-            screenContainer.className += ' CurrentScreenContainer'
+            $(screenContainer).addClass('CurrentScreenContainer')
         }
         rootContainer.current.appendChild(screenContainer)
-        // document.getElementById('App').appendChild(notificationContainer)
         ReactDOM.render(screen, screenContainer)
     }
 

@@ -6,12 +6,16 @@ import '../style.scss';
 const Overlay = props => {
     return (
         <div className="page" style={{
-            background: 'green',
+            background: '#333333',
         }}>
             <h1>Overlay Screen</h1>
             <input type="button" onClick={_ => {
-                props.switcher.current.dismissOverlay(Animations.SlideFromTop, 200, Easings.linearTween)
-            }} />
+                props.switcher.current.dismissOverlay({
+                    animation: Animations.SlideFromTop,
+                    duration: 200,
+                    easing: Easings.linearTween
+                })
+            }} value="Dismiss" />
         </div>
     )
 }

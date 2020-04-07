@@ -15,7 +15,11 @@ const First = props => {
 
             {/** Go to Screen 2 Button */}
             <input type='button' value="Go to Screen 2" onClick={_ => {
-                props.switcher.current.switchTo('Second', Animations.SlideFromRight, 200, Easings.easeInOutQuart);
+                props.switcher.current.present('Second', {
+                    animation: Animations.SlideFromRight,
+                    duration: 200,
+                    easing: Easings.easeInOutQuart
+                });
             }} />
 
             {/** Show Push Notification Button */}
@@ -47,17 +51,17 @@ const First = props => {
             }} />
 
             <input type="text" value={inputValue} placeholder="State Cache Test" onChange={e => setInputValue(e.target.value)} />
-            
-            <input type='button' value="Clear States" onClick={_ => {
-                props.switcher.current.clearStates()
-            }} />
-            
+
             <input type='button' value="Show Toast Message" onClick={_ => {
                 Toasts.show("Testing 1.. 2..")
             }} />
-            
+
             <input type='button' value="Present Overlay" onClick={_ => {
-                props.switcher.current.presentOverlay('Overlay', Animations.SlideFromBottom, 200, Easings.linearTween);
+                props.switcher.current.presentOverlay('Overlay', {
+                    animation: Animations.SlideFromBottom,
+                    duration: 200,
+                    easing: Easings.linearTween
+                });
             }} />
 
         </div>

@@ -40,7 +40,11 @@ const Second = props => {
 
             {/** Go to Screen 1 Button */}
             <input type='button' style={buttonStyle} value="Go to Screen 1" onClick={_ => {
-                props.switcher.current.switchTo('First', Animations.SlideFromLeft, 200, Easings.easeInOutQuart);
+                props.switcher.current.present('First', {
+                    animation: Animations.SlideFromLeft,
+                    duration: 200,
+                    easing: Easings.easeInOutQuart
+                });
             }} />
 
         </div>
