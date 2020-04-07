@@ -11,11 +11,11 @@ function App() {
   const [toggle, setToggle] = useState(false)
 
   useEffect(_ => {
-    if (!toggle) {
-      setTimeout(_ => {
-        setToggle(true)
-      }, 5000)
-    }
+    // if (!toggle) {
+    //   setTimeout(_ => {
+    //     setToggle(true)
+    //   }, 5000)
+    // }
   }, [])
 
   return (
@@ -26,9 +26,9 @@ function App() {
         }} initialScreen="Second" />
         :
         <ScreenSwitcher ref={switcher} screens={{
+          "Overlay": <Overlay switcher={switcher} />,
           "First": <First switcher={switcher} />,
           "Second": <Second switcher={switcher} />,
-          "Overlay": <Overlay switcher={switcher} />,
         }} initialScreen="First" />
       }
     </div>

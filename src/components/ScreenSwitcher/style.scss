@@ -9,12 +9,15 @@
 
 .CurrentScreenContainer {
     display: inline-block;
+    z-index: 0;
 }
 
 .NextScreenContainer {
     display: inline-block;
+    z-index: 999;
 }
 
 .OverlayScreenContainer {
     display: inline-block;
+    z-index: 9999;
 }
