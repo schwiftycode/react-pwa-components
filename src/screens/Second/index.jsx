@@ -8,19 +8,6 @@ const Second = props => {
     const screenName = "Second"
     const [testValue, setTestValue] = useState('asdf');
 
-    useEffect(_ => {
-        let stateObject = props.switcher.current.getState(screenName)
-        if (stateObject) {
-            setTestValue(stateObject.testValue)
-        }
-    }, [])
-
-    const getState = _ => {
-        return {
-            testValue
-        }
-    }
-
     const pageStyle = {
         height: '100%',
         display: 'flex',
@@ -53,7 +40,7 @@ const Second = props => {
 
             {/** Go to Screen 1 Button */}
             <input type='button' style={buttonStyle} value="Go to Screen 1" onClick={_ => {
-                props.switcher.current.switchTo('First', Animations.SlideFromLeft, 200, Easings.easeInOutQuart, getState());
+                props.switcher.current.switchTo('First', Animations.SlideFromLeft, 200, Easings.easeInOutQuart);
             }} />
 
         </div>

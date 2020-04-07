@@ -1,31 +1,34 @@
 import React, { useState, useRef, useImperativeHandle, forwardRef, useEffect } from 'react';
+import ReactDOM from 'react-dom';
 import Animations from '../Scripts/Animations';
 import Easings from '../Scripts/Easings';
 
-import './style.css';
+import './style.scss';
 
 const ScreenNavigator = forwardRef((props, ref) => {
-    let { initialScreen } = props
-    const [screens, setScreens] = useState({})
-    const [screenStates, setScreenStates] = useState({})
+
+    // Props
+    let { initialScreen, screens } = props
+
+    // State variables
     const [currentScreen, setCurrentScreen] = useState(null)
     const [nextScreen, setNextScreen] = useState(null)
     const [overlayScreen, setOverlayScreen] = useState(null)
+
+    // Refs
+    const rootContainer = useRef(null)
     const currentScreenContainer = useRef(null)
     const nextScreenContainer = useRef(null)
     const overlayScreenContainer = useRef(null)
 
+    // locals
     let anim = null;
     let animationStart = 0
 
     useEffect(_ => {
-        setScreens(props.screens)
-        currentScreenContainer.current.style.opacity = 1
-        nextScreenContainer.current.style.opacity = 0
-        overlayScreenContainer.current.style.opacity = 0
-        if (initialScreen) {
-            setCurrentScreen(initialScreen)
-        }
+        Object.keys(screens).forEach(key => {
+            addScreenToDOM(key, screens[key])
+        })
     }, [])
 
     useImperativeHandle(ref, _ => ({
@@ -35,11 +38,6 @@ const ScreenNavigator = forwardRef((props, ref) => {
             animation = animation || Animations.Fade
             duration = duration || 500
             easing = easing || Easings.linearTween
-
-            // Set previous state in screen states
-            let ss = { ...screenStates }
-            ss[currentScreen] = previousState
-            setScreenStates(ss);
 
             // Prepare for Animation
             setNextScreen(screenName)
@@ -95,31 +93,6 @@ const ScreenNavigator = forwardRef((props, ref) => {
                 resetAnimationParams()
             }, duration + 100)
         },
-        storeState: (screen, stateObject) => {
-            // console.log('Storing state for ', screen)
-            let ss = { ...screenStates }
-            ss[screen] = stateObject
-            setScreenStates(ss)
-        },
-        getState: screen => {
-            // console.log('Restoring state for ', screen)
-            if (screenStates[screen]) {
-                return screenStates[screen]
-            }
-            return null
-        },
-        clearState: screen => {
-            let ss = { ...screenStates }
-            ss[screen] = null
-            setScreenStates(ss)
-        },
-        clearStates: _ => {
-            let ss = { ...screenStates }
-            Object.keys(screenStates).forEach(screen => {
-                ss[screen] = null
-            })
-            setScreenStates(ss)
-        }
     }))
 
     const startAnimation = (cScreen, nScreen, animation, duration, easing) => {
@@ -261,17 +234,21 @@ const ScreenNavigator = forwardRef((props, ref) => {
         currentScreenContainer.current.style.transform = 'translate(0, 0)'
     }
 
+    const addScreenToDOM = (screenName, screen) => {
+        let screenContainer = document.createElement('div')
+        screenContainer.id = screenName
+        screenContainer.className = 'ScreenContainer'
+        if (initialScreen === screenName) {
+            screenContainer.className += ' CurrentScreenContainer'
+        }
+        rootContainer.current.appendChild(screenContainer)
+        // document.getElementById('App').appendChild(notificationContainer)
+        ReactDOM.render(screen, screenContainer)
+    }
+
     return (
-        <div className="ScreenNavigator">
-            <div ref={nextScreenContainer} className="NextScreenContainer">
-                {screens[nextScreen]}
-            </div>
-            <div ref={currentScreenContainer} className="CurrentScreenContainer">
-                {screens[currentScreen]}
-            </div>
-            <div ref={overlayScreenContainer} className="OverlayScreenContainer" style={{ pointerEvents: overlayScreen ? 'auto' : 'none' }}>
-                {screens[overlayScreen]}
-            </div>
+        <div className="ScreenSwitcher" ref={rootContainer}>
+            {/* Child Screens will be appended here */}
         </div>
     )
 })

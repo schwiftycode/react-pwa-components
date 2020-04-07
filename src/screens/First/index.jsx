@@ -7,20 +7,6 @@ const First = props => {
     const screenName = "First"
     const [inputValue, setInputValue] = useState('');
 
-    useEffect(_ => {
-        let stateObject = props.switcher.current.getState(screenName)
-        if (stateObject) {
-            setInputValue(stateObject.inputValue)
-            console.log("Get Input Value: ", stateObject.inputValue)
-        }
-    }, [])
-
-    const getState = _ => {
-        return {
-            inputValue
-        }
-    }
-
     return (
         <div className="page" style={{
             background: 'green',
@@ -29,7 +15,7 @@ const First = props => {
 
             {/** Go to Screen 2 Button */}
             <input type='button' value="Go to Screen 2" onClick={_ => {
-                props.switcher.current.switchTo('Second', Animations.SlideFromRight, 200, Easings.easeInOutQuart, getState());
+                props.switcher.current.switchTo('Second', Animations.SlideFromRight, 200, Easings.easeInOutQuart);
             }} />
 
             {/** Show Push Notification Button */}
