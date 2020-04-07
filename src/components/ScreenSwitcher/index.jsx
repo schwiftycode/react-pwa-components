@@ -22,10 +22,20 @@ const ScreenNavigator = forwardRef((props, ref) => {
     let overlayScreenContainerClass = 'OverlayScreenContainer'
 
     useEffect(_ => {
-        Object.keys(screens).forEach(key => {
+            console.log("Setup setup setup!")
+            Object.keys(screens).forEach(key => {
             addScreenToDOM(key, screens[key])
         })
-    }, [])
+    })
+
+    useEffect(_ => {
+        return _ => {
+            console.log("Cleanup cleanup everybody cleanup!")
+            Object.keys(screens).forEach(key => {
+                removeScreenFromDOM(key, screens[key])
+            })
+        }
+    })
 
     useImperativeHandle(ref, _ => ({
         present: present,
@@ -48,10 +58,10 @@ const ScreenNavigator = forwardRef((props, ref) => {
     const present = (screenName, animation) => {
         if (anim) {
             resetAnimation()
-            
+
             const currentScreenContainer = $(`.${currentScreenContainerClass}`)
             const nextScreenContainer = $(`.${nextScreenContainerClass}`)
-            
+
             // currentScreenContainer.removeClass(currentScreenContainerClass)
             nextScreenContainer.removeClass(nextScreenContainerClass)
             nextScreenContainer.addClass(currentScreenContainerClass)
@@ -125,9 +135,9 @@ const ScreenNavigator = forwardRef((props, ref) => {
     const dismissOverlay = (animation) => {
         if (anim) {
             resetAnimation()
-            
+
             const overlayScreenContainer = $(`.${overlayScreenContainerClass}`)
-            
+
             overlayScreenContainer.removeClass(overlayScreenContainerClass)
         }
         // Ensure all properties have values
@@ -316,6 +326,10 @@ const ScreenNavigator = forwardRef((props, ref) => {
         }
         rootContainer.current.appendChild(screenContainer)
         ReactDOM.render(screen, screenContainer)
+    }
+
+    const removeScreenFromDOM = (screenName, screen) => {
+        $(`#${screenName}`).remove()
     }
 
     return (
