@@ -9,6 +9,7 @@
     align-items: center;
     transform: translateY(100%);
     transition: all 0.125s ease-out;
+    z-index: 2147483647;
 
     &.show {
         transform: translateY(0);
