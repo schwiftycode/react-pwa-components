@@ -6,6 +6,7 @@ import '../style.scss';
 const First = props => {
     const screenName = "First"
     const [inputValue, setInputValue] = useState('');
+    const [isDark, setIsDark] = useState(false);
 
     return (
         <div className="page" style={{
@@ -27,9 +28,10 @@ const First = props => {
                 Notifications.show('Test Notification',
                     'This is a test notification showing normal notifications',
                     {
-                        darkMode: true
+                        darkMode: isDark
                     }
                 )
+                setIsDark(!isDark)
             }} />
 
             {/** Show Confirm Notification Button */}
@@ -43,11 +45,12 @@ const First = props => {
                         console.log('Dismiss Clicked')
                     },
                     {
-                        darkMode: true,
+                        darkMode: isDark,
                         confirmTitle: 'Okay',
                         dismissTitle: 'Nope'
                     }
                 )
+                setIsDark(!isDark)
             }} />
 
             <input type="text" value={inputValue} placeholder="State Cache Test" onChange={e => setInputValue(e.target.value)} />
